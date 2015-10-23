@@ -23,6 +23,7 @@ angular.module('dateClient.services', [])
     dateIdeas: {},
 
     appendTags: function (tags){
+      console.log("Appending tags", tags);
       for (tag in tags){
         if (tags[tag] === 1){
           this.tags.push(tag);
@@ -35,9 +36,11 @@ angular.module('dateClient.services', [])
 
 
     appendLogistics: function (logistics){
+      console.log("Appending logistics", logistics);
       for (logistic in logistics){
         this.logistics[logistic] = logistics[logistic];
       }
+      console.log("Logistics are now", this.logistics);
     },
     getLogistics: function (){
       return this.logistics;
@@ -48,6 +51,7 @@ angular.module('dateClient.services', [])
       this.dateIdeas = ideas;
     },
     getDateIdeas: function (){
+      console.log("Getting date ideas");
       return this.dateIdeas;
     },
     getConcatenatedData: function () {

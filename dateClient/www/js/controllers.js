@@ -90,7 +90,7 @@ angular.module('dateIdea.controllers', [])
   $scope.submit = function() {
     DateData.appendTags($scope.answers);
     $scope.isActive = {};
-    $location.path('/findadate');
+    $location.path('/findadate/0');
   };
   $scope.isActive = {};
   $scope.answers = {};
@@ -109,46 +109,74 @@ angular.module('dateIdea.controllers', [])
 })
 
 
-.controller('FindADateCtrl', function($scope, $stateParams, $location, $timeout, FindADate, DateData) {
+.controller('FindADateCtrl', function($scope, $ionicHistory, $stateParams, $location, $timeout, FindADate, DateData) {
 
+  // Populate the Find a Date questionnaire with Questions. These should be sorted in the order in which they appear to the user. 
+  // These will eventually come from a REST API endpoint on the server, so we can dynamically serve questions. 
+  $scope.questions = [
+    {question: "When are you going?", type: "logistics", field: "time", possibilities: ["today", "tonight", "tommorrow"]},
+    {question: "How long is your date?", type: "logistics", field: "length", possibilities: ["30 mins", "1 hr", "2 hrs"]},
+    {question: "What's your mode of transportation", type: "logistics", field: "transportation", possibilities:
+      ["walk","taxi","drive", "public transportation"]},
+    {question: "Would you prefer a loud or quiet setting?", type: "tag", field: null, possibilities: ["Loud", "Quiet"]}
+  ];
+
+  $scope.data = {};
+
+
+  // We need this code to help the app know which question should be served to the user, given the
+  // param in the URL. 
+  $scope.currentIndex = $stateParams.questionId;
+  $scope.currentQuestion = $scope.questions[$scope.currentIndex];
+
+  $scope.isChecked = function() {
+    console.log("Checking if it's the chosen option", $scope.currentQuestion.chosenOption);
+    return true;
+  }
+  $scope.loadState = function(){
+    console.log("Loading logistics");
+    $scope.currentLogistics = DateData.getLogistics();
+    $scope.currentTags = DateData.getTags();
+    console.log("Loaded logistics from LoadState are", $scope.currentLogistics);
+  }; 
+
+  // This allows the user to navigate back and forth between the questions. 
+  $scope.prevQuestion = function() {
+    console.log("Going to previous view");
+    $ionicHistory.goBack();
+    $scope.loadState();
+  };
+
+  // This function determines what should be the next URL that the user navigates to. 
   $scope.nextQuestion = function(question, index){
-    if(question.type === "logistics"){
-      var key = question.field;
-      var val = question.possibilities[index];
-      var obj = {};
-      obj[key] = val;
-      DateData.appendLogistics(obj)
-    } else if (question.type === "tag"){
-      var key = question.possibilities[index];
-      var obj = {};
-      obj[key] = 1;
-      DateData.appendTags(obj);
-    }
-    //if type is logistics then append a key value pair w/ key as "field" and value as possability
-    if($scope.currentQuestion === $scope.questions.length -1){
-      $scope.currentQuestion = 0;
-        //go to a loading screen
-        FindADate.sendDateData(DateData.getConcatenatedData(), function(data){
+    var nextQuestionId = Number($scope.currentIndex) + 1;
+    if (nextQuestionId === $scope.questions.length) {
+      FindADate.sendDateData(DateData.getConcatenatedData(), function(data){
         DateData.setDateIdeas(data);
         $location.path('/idea');
       });
     } else {
-      $scope.currentQuestion++;
+      if($scope.currentQuestion.type === "logistics"){
+        var obj = {};
+        var key = $scope.currentQuestion.field;
+        obj[key] = $scope.currentQuestion.chosenOption;
+        console.log("Logistics question", obj);
+        DateData.appendLogistics(obj);
+      } else if ($scope.currentQuestion.type === "tag"){
+        console.log("Tag question");
+        var key = $scope.currentQuestion.possibilities[index];
+        var obj = {};
+        obj[key] = 1;
+        DateData.appendTags(obj);
+      }
+      var nextPath = '/findadate/' + nextQuestionId;
+      $location.path(nextPath);
     }
   };
 
-  $scope.isCurrent = function(question){
-    return $scope.questions[$scope.currentQuestion].question === question;
-  };
+  $scope.loadState();
 
-  $scope.questions = [
-    {question: "When are you going?", type: "logistics", field: "time", possibilities: ["today", "tonight", "tommorrow"]},
-    {question: "How long is your date?", type: "logistics", field: "length", possibilities: ["30 mins", "1 hr", "2 hrs"]},
-    {question: "What's your mode of transportation", type: "logistics", field: "transportation", possibilities: ["walk","taxi","drive", "public transportation"]},
-    {question: "Would you prefer a loud or quiet setting?", type: "tag", field: null, possibilities: ["Loud", "Quiet"]}
-  ];
 
-  $scope.currentQuestion = 0;
 });
 
 
