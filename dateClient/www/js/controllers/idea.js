@@ -5,35 +5,89 @@ angular.module('dateworthy.idea', ['ngOpenFB', 'ngCordova'])
 
 .controller('IdeaCtrl', function($location, $ionicHistory, $q, $ionicLoading, $scope, $stateParams, DateData, LikeADate, FlagADate) {
   
-  $scope.initMap = function(latitude, longitude, name){
-    console.log("Initiating Map...", latitude, longitude);
-    var myLatlng = new google.maps.LatLng(latitude, longitude);
-    var mapOptions = {
-        center: myLatlng,
-        zoom: 16,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var venueMap = new google.maps.Map(document.getElementById("venueMap"), mapOptions);
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      venueMap.setCenter(new google.maps.LatLng(latitude, longitude));
-      var myLocation = new google.maps.Marker({
-          position: new google.maps.LatLng(latitude, longitude),
-          map: venueMap,
-          title: name
+  // $scope.initMap = function(latitude, longitude, name){
+  //   console.log("Initiating Map...", latitude, longitude);
+  //   var myLatlng = new google.maps.LatLng(latitude, longitude);
+  //   var mapOptions = {
+  //       center: myLatlng,
+  //       zoom: 16,
+  //       mapTypeId: google.maps.MapTypeId.ROADMAP
+  //   };
+  //   var venueMap = new google.maps.Map(document.getElementById("venueMap"), mapOptions);
+  //   navigator.geolocation.getCurrentPosition(function(pos) {
+  //     venueMap.setCenter(new google.maps.LatLng(latitude, longitude));
+  //     var myLocation = new google.maps.Marker({
+  //         position: new google.maps.LatLng(latitude, longitude),
+  //         map: venueMap,
+  //         title: name
+  //     });
+  //   });
+  //   $scope.venueMap = venueMap;
+  // };
+
+  $scope.initMaps = function(ideas) {
+    for (var i = 0; i < ideas.length; i++) {
+      var latitude = ideas[i].location.lat;
+      var longitude = ideas[i].location.lng;
+      console.log("Initiating Map...", latitude, longitude);
+      var myLatlng = new google.maps.LatLng(latitude, longitude);
+      var mapOptions = {
+          center: myLatlng,
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+      // debugger;
+      var venueMapId = "venueMap" + i;
+      console.log("venueMapId is", venueMapId);
+      var venueMap = new google.maps.Map(document.getElementById(venueMapId), mapOptions);
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        venueMap.setCenter(new google.maps.LatLng(latitude, longitude));
+        var myLocation = new google.maps.Marker({
+            position: new google.maps.LatLng(latitude, longitude),
+            map: venueMap,
+            title: "a map"
+        });
       });
-    });
-    $scope.venueMap = venueMap;
+    $scope["venueMap" + i] = venueMap;
+    }
+  }
+
+  $scope.toggleDetails = function() {
+    if ($scope.idea.detailsVisible === false) {
+      $scope.idea.detailsVisible = true;
+    } else {
+      $scope.idea.detailsVisible = false; 
+    }
   };
 
-  DateData.getDateIdeas(function(ideas) {
-    $scope.ideas = ideas;
-    console.log($scope.ideas);
-    $scope.currentIdea = $stateParams.ideaId;
-    $scope.imgWidth = window.innerWidth + 'px'; 
-    console.log("innerwidth is", $scope.imgWidth);
-    $scope.idea = $scope.ideas[$scope.currentIdea];
-    setTimeout($scope.initMap($scope.idea.location.lat, $scope.idea.location.lng, $scope.idea.name), 500);
+  $scope.$on('$stateChangeSuccess', function() {
+    DateData.getDateIdeas(function(ideas) {
+      $scope.ideas = ideas;
+      console.log($scope.ideas);
+      $scope.currentIdea = Number($stateParams.ideaId);
+      $scope.imgWidth = window.innerWidth + 'px'; 
+      console.log("innerwidth is", $scope.imgWidth);
+      $scope.idea = $scope.ideas[$scope.currentIdea];
+      $scope.idea.index = $scope.currentIdea;
+      $scope.idea.last = false;
+      console.log("$scope.idea.index", $scope.idea.index);
+      if ($scope.idea.index === $scope.ideas.length - 1) {
+        $scope.idea.last = true; 
+      }
+      $scope.idea.detailsVisible = false;
+      setTimeout($scope.initMaps($scope.ideas), 500);
+      // $scope.initMap($scope.idea.location.lat, $scope.idea.location.lng, $scope.idea.name);
+    });
   });
+
+  $scope.currentIdea = 0;
+
+
+  $scope.showDetails = function() {
+    console.log("Details should be vis now");
+    $scope.idea.detailsVisible = true;
+    console.log("$scope.idea.detailsVisible", $scope.idea.detailsVisible);
+  }
 
   $scope.like = function() {
     var currentIdea = $scope.currentIdea;
@@ -61,15 +115,26 @@ angular.module('dateworthy.idea', ['ngOpenFB', 'ngCordova'])
     LikeADate.markLikeDislike($scope.ideas[currentIdea].dateIdeaID, -1);
   };
 
-  $scope.goBack = function() {
-    $ionicHistory.goBack();
-  };
-
   $scope.flagDate = function() {
     var dateIdeaID = $scope.ideas[$scope.currentIdea].dateIdeaID;
     FlagADate.flagDate(dateIdeaID);
   };
 
+  $scope.nextIdea= function(){
+    var next = Number($scope.currentIdea) + 1; 
+    $location.path('/idea/' + next);
+  };
+
+  $scope.prevIdea= function(){
+    var prev = Number($scope.currentIdea) - 1;
+    $location.path('/idea/' + prev);
+  };
+
+  $scope.clearData = function(){
+    $scope.ideas = [];
+    $scope.currentIdea = 0;
+    DateData.clearData();
+    $location.path('/home');
+  };
+
 });
-
-

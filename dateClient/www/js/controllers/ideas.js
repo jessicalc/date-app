@@ -75,4 +75,10 @@ angular.module('dateworthy.ideas', [])
   };
 
 
+  $scope.showDetails = function() {
+    console.log("Details should be vis now");
+    $scope.idea.detailsVisible = true;
+    console.log("$scope.idea.detailsVisible", $scope.idea.detailsVisible);
+  }
+  
 })

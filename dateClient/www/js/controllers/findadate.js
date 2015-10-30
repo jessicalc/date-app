@@ -5,12 +5,12 @@ angular.module('dateworthy.findadate', [])
   // Populate the Find a Date questionnaire with Questions. These should be sorted in the order in which they appear to the user. 
   // These will eventually come from a REST API endpoint on the server, so we can dynamically serve questions. 
   $scope.questions = [
-    {question: "What type of date do you enjoy in general?", type: "tag", field: "dateGenre", possibilities: ["Intellectual", "Romantic", "Goofy", "Geeky"]},
-    {question: "When are you going?", type: "logistics", field: "time", possibilities: ["Today", "Tonight", "Tomorrow"]},
-    {question: "How long is your date?", type: "logistics", field: "length", possibilities: ["30 minutes", "1 hour", "2 hours"]},
-    {question: "What's your mode of transportation?", type: "logistics", field: "transportation", possibilities:["I'm walking","I'm taking a cab","I'm driving", "Public trans, baby!"]},
-    {question: "Would you prefer a loud or quiet setting?", type: "tag", field: "noiseLevel", possibilities: ["Loud", "Quiet"]},
-    {question: "Type in the city or location for your desired date location.", type: "logistics", field: "location", possibilities: []}
+    {question: "What type of date do you enjoy in general?", type: "tag", field: "dateGenre", possibilities: ["Intellectual", "Romantic", "Goofy", "Geeky"]}
+    // {question: "When are you going?", type: "logistics", field: "time", possibilities: ["Today", "Tonight", "Tomorrow"]},
+    // {question: "How long is your date?", type: "logistics", field: "length", possibilities: ["30 minutes", "1 hour", "2 hours"]},
+    // {question: "What's your mode of transportation?", type: "logistics", field: "transportation", possibilities:["I'm walking","I'm taking a cab","I'm driving", "Public trans, baby!"]},
+    // {question: "Would you prefer a loud or quiet setting?", type: "tag", field: "noiseLevel", possibilities: ["Loud", "Quiet"]},
+    // {question: "Type in the city or location for your desired date location.", type: "logistics", field: "location", possibilities: []}
     
   ];
   $scope.data = {};
@@ -71,29 +71,29 @@ angular.module('dateworthy.findadate', [])
     if (nextQuestionId === $scope.questions.length) {
 
 
-      //Update coordinates based off of google maps center location
-      var center = $scope.map.getCenter();
-      var lat = center.lat();
-      var lng = center.lng();
-      DateData.setGeoLocation(lat, lng);
+      // //Update coordinates based off of google maps center location
+      // var center = $scope.map.getCenter();
+      // var lat = center.lat();
+      // var lng = center.lng();
+      // DateData.setGeoLocation(lat, lng);
 
 
-      for (prop in $scope.currentTags) {
-        tag = $scope.currentTags[prop]
-        if(tag !== undefined){
-          LikeADate.tag(null, tag, function(err, results){
-            if(err){
-              console.log(err)
-            }
-          })
-        }
-      };
+      // for (prop in $scope.currentTags) {
+      //   tag = $scope.currentTags[prop]
+      //   if(tag !== undefined){
+      //     LikeADate.tag(null, tag, function(err, results){
+      //       if(err){
+      //         console.log(err)
+      //       }
+      //     })
+      //   }
+      // };
 
       FindADate.sendDateData(DateData.getConcatenatedData(), function(data){
         console.log(DateData.getConcatenatedData(), "DATA WE ARE sending")
         DateData.setDateIdeas(data);
         $scope.loadState();
-        $location.path('/idea');
+        $location.path('/idea/0');
       });
 
     } else {
@@ -182,7 +182,7 @@ angular.module('dateworthy.findadate', [])
 
   $scope.loadMapCheck = function () {
     if ($scope.currentIndex === $scope.questions.length - 1 + ""){ //$scope.currentIndex === '0'){  //set to first for debegugging//$scope.currentIndex === $scope.questions.length - 1 + ""){
-      setTimeout($scope.initMap, 1000);
+      // setTimeout($scope.initMap, 1000);
       return true
     } else {
       return false

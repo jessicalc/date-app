@@ -75,11 +75,6 @@ angular.module('dateworthy', [
     templateUrl: 'templates/findadate.html',
     controller: 'FindADateCtrl'
   })
-  .state('ideas', {
-    url: '/idea',
-    templateUrl: 'templates/idea.html',
-    controller: 'IdeasCtrl'
-  })
   .state('idea', {
     url: '/idea/:ideaId',
     templateUrl: 'templates/idea-single.html',
@@ -88,5 +83,4 @@ angular.module('dateworthy', [
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/');
 });
-
 
