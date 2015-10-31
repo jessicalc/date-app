@@ -39,7 +39,7 @@ var createRelationshipJSON = function(filename) {
         var preposition = lineData.shift();
         var eventJSON = {
           fsCategory: fsCategory,
-          eventname: event + ' at ' + venueCategory,
+          eventname: event + ' ' + preposition + ' ' + venueCategory,
           venueCategory: venueCategory,
           event: event,
           preposition: preposition,
