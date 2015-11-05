@@ -9,14 +9,14 @@ var Event = require('../models/event');
 var EventSQL = require('../models/eventSQL');
 var VenueSQL = require('../models/venueSQL');
 var Promise = require('bluebird');
-var config = require('../secret/config');
+// var config = require('../secret/config');
 var dateIdeaSQL = require('../models/dateIdeaSQL');
 var userPrefSQL = require('../models/userPrefSQL');
 var venueSQL = require('../models/venueSQL');
 var _ = require('underscore');
 
-var clientID = process.env.FS_ID || config.clientID;
-var clientSecret = process.env.FS_SECRET || config.clientSecret;
+var clientID = process.env.FS_ID; // || config.clientID;
+var clientSecret = process.env.FS_SECRET; // || config.clientSecret;
 var foursquare = require('node-foursquare-venues')(clientID, clientSecret);
 
 function getDateURL(date) {
